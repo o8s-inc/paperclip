@@ -2,6 +2,7 @@ import type { Request, RequestHandler } from "express";
 import type { IncomingHttpHeaders } from "node:http";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { genericOAuth, keycloak } from "better-auth/plugins";
 import { toNodeHandler } from "better-auth/node";
 import type { Db } from "@paperclipai/db";
 import {
@@ -91,6 +92,22 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
       requireEmailVerification: false,
       disableSignUp: config.authDisableSignUp,
     },
+    plugins: [
+      // Keycloak OIDC SSO (enabled when KEYCLOAK_CLIENT_ID is set)
+      ...(process.env.KEYCLOAK_CLIENT_ID
+        ? [
+            genericOAuth({
+              config: [
+                keycloak({
+                  clientId: process.env.KEYCLOAK_CLIENT_ID!,
+                  clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+                  domain: process.env.KEYCLOAK_DOMAIN!, // e.g. keycloak.o8s.ai/realms/o8s
+                }),
+              ],
+            }),
+          ]
+        : []),
+    ],
     ...(isHttpOnly ? { advanced: { useSecureCookies: false } } : {}),
   };
 
