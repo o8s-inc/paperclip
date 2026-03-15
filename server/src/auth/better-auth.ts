@@ -101,7 +101,7 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
                 keycloak({
                   clientId: process.env.KEYCLOAK_CLIENT_ID!,
                   clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-                  domain: process.env.KEYCLOAK_DOMAIN!, // e.g. keycloak.o8s.ai/realms/o8s
+                  issuer: process.env.KEYCLOAK_ISSUER!, // e.g. https://keycloak.o8s.ai/auth/realms/platform
                 }),
               ],
             }),
